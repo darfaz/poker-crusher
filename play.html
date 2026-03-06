@@ -59,7 +59,7 @@ body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var
   border: 8px solid #3d2b1a;
   box-shadow: inset 0 0 60px rgba(0,0,0,0.4), 0 4px 30px rgba(0,0,0,0.5);
   position: relative;
-  min-height: 480px;
+  min-height: 540px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -160,20 +160,31 @@ body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var
   gap: 4px;
 }
 .seat-cards .card {
-  width: 44px;
-  height: 64px;
-  font-size: .8rem;
+  width: 36px;
+  height: 52px;
+  font-size: .7rem;
 }
-.seat-cards .card .suit { font-size: 1rem; }
-.seat-cards .card .rank { font-size: .75rem; }
+.seat-cards .card .suit { font-size: .85rem; }
+.seat-cards .card .rank { font-size: .65rem; }
 
-/* seat positions for 6-max */
-.seat-0 { bottom: 4%; left: 50%; transform: translateX(-50%); }
-.seat-1 { bottom: 20%; left: 5%; }
-.seat-2 { top: 20%; left: 5%; }
-.seat-3 { top: 4%; left: 50%; transform: translateX(-50%); }
-.seat-4 { top: 20%; right: 5%; }
-.seat-5 { bottom: 20%; right: 5%; }
+/* seat positions — 6-max (default) */
+.seat-0 { bottom: 2%; left: 50%; transform: translateX(-50%); }
+.seat-1 { bottom: 25%; left: 3%; }
+.seat-2 { top: 15%; left: 10%; }
+.seat-3 { top: 2%; left: 50%; transform: translateX(-50%); }
+.seat-4 { top: 15%; right: 10%; }
+.seat-5 { bottom: 25%; right: 3%; }
+
+/* seat positions — 9-max overrides */
+.nine-max .seat-0 { bottom: 2%; left: 50%; transform: translateX(-50%); }
+.nine-max .seat-1 { bottom: 20%; left: 2%; }
+.nine-max .seat-2 { top: 35%; left: 1%; }
+.nine-max .seat-3 { top: 8%; left: 12%; }
+.nine-max .seat-4 { top: 2%; left: 50%; transform: translateX(-50%); }
+.nine-max .seat-5 { top: 8%; right: 12%; }
+.nine-max .seat-6 { top: 35%; right: 1%; }
+.nine-max .seat-7 { bottom: 20%; right: 2%; }
+.nine-max .seat-8 { bottom: 12%; right: 22%; }
 
 /* DEALER BUTTON */
 .dealer-btn {
@@ -779,6 +790,10 @@ class PokerGame {
     
     document.getElementById('result-overlay').classList.remove('show');
     document.getElementById('hand-counter').textContent = `Hand #${this.handNum}`;
+    
+    // Toggle 9-max class
+    const table = document.getElementById('poker-table');
+    table.classList.toggle('nine-max', this.numSeats === 9);
     
     // Rotate dealer
     this.dealerSeat = (this.handNum - 1) % this.numSeats;
