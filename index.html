@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crush Poker — Your Road to Crushing No-Limit Hold'em</title>
+<meta name="description" content="A structured, milestone-based learning path to crush No-Limit Hold'em poker. Preflop charts, postflop strategy, player exploitation — from fish to crusher.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0f1c;
+  --bg2: #111827;
+  --bg3: #1a2332;
+  --card: #1e293b;
+  --border: #2d3a4d;
+  --green: #22c55e;
+  --green-dim: #16a34a;
+  --red: #ef4444;
+  --red-dim: #dc2626;
+  --blue: #3b82f6;
+  --yellow: #eab308;
+  --orange: #f97316;
+  --purple: #a855f7;
+  --text: #f1f5f9;
+  --text2: #94a3b8;
+  --text3: #64748b;
+  --gold: #fbbf24;
+  --spade: #e2e8f0;
+  --heart: #ef4444;
+  --diamond: #3b82f6;
+  --club: #22c55e;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ===== HERO ===== */
+.hero {
+  text-align: center;
+  padding: 80px 20px 60px;
+  background: linear-gradient(180deg, #0a1628 0%, var(--bg) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '♠ ♥ ♦ ♣';
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+  letter-spacing: 16px;
+  color: var(--text3);
+  opacity: 0.3;
+}
+
+.hero-suits {
+  font-size: 48px;
+  letter-spacing: 12px;
+  margin-bottom: 16px;
+}
+
+.hero-suits .s { color: var(--spade); }
+.hero-suits .h { color: var(--heart); }
+.hero-suits .d { color: var(--diamond); }
+.hero-suits .c { color: var(--club); }
+
+.hero h1 {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 900;
+  letter-spacing: -1px;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, var(--green) 0%, #4ade80 50%, var(--gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero .tagline {
+  font-size: 1.25rem;
+  color: var(--text2);
+  max-width: 600px;
+  margin: 0 auto 32px;
+}
+
+.hero .cta-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-block;
+  padding: 14px 32px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: var(--green);
+  color: #000;
+}
+.btn-primary:hover { background: #4ade80; transform: translateY(-2px); }
+
+.btn-outline {
+  background: transparent;
+  color: var(--text);
+  border: 2px solid var(--border);
+}
+.btn-outline:hover { border-color: var(--green); color: var(--green); }
+
+/* ===== SCAN SECTION ===== */
+.scan-section {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 60px 20px;
+}
+
+.section-icon {
+  font-size: 40px;
+  margin-bottom: 8px;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.section-subtitle {
+  color: var(--text2);
+  margin-bottom: 32px;
+  font-size: 1.05rem;
+}
+
+.scan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.scan-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  transition: all 0.2s;
+}
+.scan-card:hover {
+  border-color: var(--green);
+  transform: translateY(-3px);
+}
+
+.scan-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: var(--green);
+  color: #000;
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+}
+
+.scan-card h3 { font-size: 1rem; margin-bottom: 6px; }
+.scan-card p { font-size: 0.85rem; color: var(--text2); }
+
+/* ===== GAME PICKER ===== */
+.picker-section {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 60px 20px;
+}
+
+.game-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.game-tab {
+  padding: 10px 20px;
+  border-radius: 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+.game-tab:hover { border-color: var(--green); color: var(--text); }
+.game-tab.active {
+  background: var(--green);
+  color: #000;
+  border-color: var(--green);
+}
+
+.game-content {
+  display: none;
+}
+.game-content.active { display: block; }
+
+/* ===== RANGE CHARTS ===== */
+.range-section {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 60px 20px;
+}
+
+.position-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.pos-tab {
+  padding: 8px 16px;
+  border-radius: 6px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  font-family: 'JetBrains Mono', monospace;
+  transition: all 0.15s;
+}
+.pos-tab:hover { color: var(--text); border-color: var(--text3); }
+.pos-tab.active { background: var(--green); color: #000; border-color: var(--green); }
+
+.range-grid {
+  display: grid;
+  grid-template-columns: repeat(13, 1fr);
+  gap: 2px;
+  max-width: 650px;
+  margin: 0 auto 24px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.range-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(0.5rem, 1.5vw, 0.75rem);
+  font-weight: 600;
+  border-radius: 3px;
+  background: var(--bg3);
+  color: var(--text3);
+  transition: all 0.15s;
+  position: relative;
+}
+
+.range-cell.raise {
+  background: var(--green);
+  color: #000;
+}
+
+.range-cell.call {
+  background: var(--blue);
+  color: #fff;
+}
+
+.range-cell.threebet {
+  background: var(--red);
+  color: #fff;
+}
+
+.range-cell.optional {
+  background: #854d0e;
+  color: var(--gold);
+}
+
+.range-legend {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--text2);
+}
+
+.legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+}
+
+.range-info {
+  text-align: center;
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--card);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+.range-info .pct {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--green);
+}
+
+.range-info .label {
+  color: var(--text2);
+  font-size: 0.9rem;
+}
+
+/* ===== PHASES ===== */
+.phases-section {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 60px 20px;
+}
+
+.phase-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 32px;
+  margin-bottom: 24px;
+  transition: all 0.2s;
+}
+
+.phase-card:hover { border-color: var(--green); }
+
+.phase-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.phase-num {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--green);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.phase-header h3 { font-size: 1.3rem; font-weight: 700; }
+.phase-header .phase-sub { color: var(--text2); font-size: 0.9rem; }
+
+.phase-content h4 {
+  font-size: 1rem;
+  margin: 20px 0 10px;
+  color: var(--gold);
+}
+
+.phase-content ul {
+  list-style: none;
+  padding: 0;
+}
+
+.phase-content li {
+  padding: 6px 0 6px 24px;
+  position: relative;
+  color: var(--text2);
+  font-size: 0.95rem;
+}
+
+.phase-content li::before {
+  content: '▸';
+  position: absolute;
+  left: 4px;
+  color: var(--green);
+}
+
+/* ===== PLAYER TYPES ===== */
+.players-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.player-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.player-card .player-name {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+}
+
+.player-card .player-stats {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text3);
+  font-size: 0.8rem;
+  margin-bottom: 10px;
+}
+
+.player-card .player-how {
+  font-size: 0.9rem;
+  color: var(--text2);
+}
+
+.player-card .player-emoji {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+/* ===== POSTFLOP ===== */
+.postflop-section {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 60px 20px;
+}
+
+.street-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.street-tab {
+  padding: 10px 24px;
+  border-radius: 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.street-tab:hover { border-color: var(--green); color: var(--text); }
+.street-tab.active { background: var(--green); color: #000; border-color: var(--green); }
+
+.street-content { display: none; }
+.street-content.active { display: block; }
+
+.decision-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 16px 0;
+}
+
+.decision-table th {
+  background: var(--bg3);
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text2);
+  border-bottom: 1px solid var(--border);
+}
+
+.decision-table td {
+  background: var(--card);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+  color: var(--text2);
+}
+
+.decision-table tr:last-child td { border-bottom: none; }
+.decision-table td:first-child { font-weight: 600; color: var(--text); }
+
+.action-bet { color: var(--green) !important; font-weight: 600 !important; }
+.action-check { color: var(--yellow) !important; font-weight: 600 !important; }
+.action-fold { color: var(--red) !important; font-weight: 600 !important; }
+
+/* ===== RESOURCES ===== */
+.resources-section {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 60px 20px;
+}
+
+.resource-tier {
+  margin-bottom: 32px;
+}
+
+.tier-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.tier-badge {
+  font-size: 1.5rem;
+}
+
+.tier-header h3 { font-size: 1.1rem; }
+
+.resource-list {
+  display: grid;
+  gap: 10px;
+}
+
+.resource-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.2s;
+  text-decoration: none;
+  color: var(--text);
+}
+.resource-item:hover { border-color: var(--green); transform: translateX(4px); }
+
+.resource-item .r-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  color: var(--green);
+  font-size: 1.1rem;
+  min-width: 28px;
+}
+
+.resource-item .r-info h4 { font-size: 0.95rem; margin-bottom: 2px; }
+.resource-item .r-info p { font-size: 0.8rem; color: var(--text3); }
+
+/* ===== MILESTONES ===== */
+.milestones-section {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 60px 20px;
+}
+
+.milestone {
+  position: relative;
+  padding-left: 40px;
+  padding-bottom: 40px;
+  border-left: 2px solid var(--border);
+}
+
+.milestone:last-child { border-left-color: transparent; padding-bottom: 0; }
+
+.milestone::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--border);
+  border: 3px solid var(--bg);
+}
+
+.milestone.unlocked::before { background: var(--green); box-shadow: 0 0 12px var(--green); }
+
+.milestone h3 {
+  font-size: 1.1rem;
+  margin-bottom: 6px;
+}
+
+.milestone .m-desc {
+  color: var(--text2);
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+}
+
+.milestone-checks {
+  list-style: none;
+  padding: 0;
+}
+
+.milestone-checks li {
+  padding: 4px 0;
+  font-size: 0.85rem;
+  color: var(--text3);
+}
+
+.milestone-checks li::before {
+  content: '☐ ';
+  margin-right: 4px;
+}
+
+/* ===== CHEAT SHEET ===== */
+.cheatsheet-section {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 60px 20px;
+}
+
+.cheat-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.cheat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.cheat-card h3 {
+  font-size: 1rem;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cheat-card ul {
+  list-style: none;
+  padding: 0;
+}
+
+.cheat-card li {
+  padding: 4px 0;
+  font-size: 0.85rem;
+  color: var(--text2);
+}
+
+/* ===== FOOTER ===== */
+footer {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text3);
+  font-size: 0.8rem;
+  border-top: 1px solid var(--border);
+  max-width: 900px;
+  margin: 40px auto 0;
+}
+
+footer a { color: var(--green); text-decoration: none; }
+
+/* ===== NAV ===== */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(10, 15, 28, 0.9);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-brand {
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--green);
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-links a {
+  color: var(--text2);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+.nav-links a:hover { color: var(--green); }
+
+/* ===== LIVE TELLS ===== */
+.tells-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.tell-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.tell-card .tell-sign { font-weight: 600; margin-bottom: 4px; font-size: 0.9rem; }
+.tell-card .tell-meaning { font-size: 0.85rem; }
+.tell-card .tell-meaning.strong { color: var(--red); }
+.tell-card .tell-meaning.weak { color: var(--green); }
+
+/* mobile */
+@media (max-width: 640px) {
+  .nav-links { display: none; }
+  .hero { padding: 100px 16px 40px; }
+  .range-grid { font-size: 0.55rem; gap: 1px; }
+  .scan-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.divider {
+  border: none;
+  height: 1px;
+  background: var(--border);
+  max-width: 900px;
+  margin: 0 auto;
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="#" class="nav-brand">♠ Crush Poker</a>
+  <div class="nav-links">
+    <a href="#scan">The SCAN</a>
+    <a href="#ranges">Ranges</a>
+    <a href="#postflop">Postflop</a>
+    <a href="#players">Players</a>
+    <a href="#resources">Resources</a>
+    <a href="#milestones">Milestones</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-suits">
+    <span class="s">♠</span>
+    <span class="h">♥</span>
+    <span class="d">♦</span>
+    <span class="c">♣</span>
+  </div>
+  <h1>Crush Poker</h1>
+  <p class="tagline">A structured, milestone-based learning path to crush No-Limit Hold'em. From fish to crusher — one phase at a time.</p>
+  <div class="cta-row">
+    <a href="#scan" class="btn btn-primary">Start The SCAN →</a>
+    <a href="#ranges" class="btn btn-outline">View Preflop Charts</a>
+  </div>
+</section>
+
+<!-- THE SCAN -->
+<section class="scan-section" id="scan">
+  <div class="section-icon">🧠</div>
+  <h2 class="section-title">The Poker SCAN</h2>
+  <p class="section-subtitle">Do this EVERY decision. This alone fixes 80% of losing players' leaks.</p>
+  <div class="scan-grid">
+    <div class="scan-card">
+      <div class="scan-num">1</div>
+      <h3>Position</h3>
+      <p>Where am I sitting? Late position = more hands, more profit. Early = play tight.</p>
+    </div>
+    <div class="scan-card">
+      <div class="scan-num">2</div>
+      <h3>Range</h3>
+      <p>Is my hand in my range for this spot? Top of range → bet. Bottom → fold or bluff.</p>
+    </div>
+    <div class="scan-card">
+      <div class="scan-num">3</div>
+      <h3>Opponents</h3>
+      <p>Who am I up against? Calling station → value bet. Tight player → respect their raises.</p>
+    </div>
+    <div class="scan-card">
+      <div class="scan-num">4</div>
+      <h3>Stacks</h3>
+      <p>Effective stack depth? Short → push/fold. Deep → implied odds matter more.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- PREFLOP RANGES -->
+<section class="range-section" id="ranges">
+  <div class="section-icon">♞</div>
+  <h2 class="section-title">Preflop Opening Ranges</h2>
+  <p class="section-subtitle">Your "opening system" — like having the London System in chess. Click a position.</p>
+
+  <div class="position-tabs">
+    <button class="pos-tab active" data-pos="utg">UTG</button>
+    <button class="pos-tab" data-pos="mp">MP</button>
+    <button class="pos-tab" data-pos="co">CO</button>
+    <button class="pos-tab" data-pos="btn">BTN</button>
+    <button class="pos-tab" data-pos="sb">SB</button>
+    <button class="pos-tab" data-pos="bb">BB</button>
+  </div>
+
+  <div id="range-chart"></div>
+
+  <div class="range-legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div> Open Raise</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#854d0e"></div> Optional / Villain-Dependent</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div> Call (BB only)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div> 3-Bet</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--bg3)"></div> Fold</div>
+  </div>
+
+  <div class="range-info">
+    <div class="pct" id="range-pct">15%</div>
+    <div class="label" id="range-label">of hands — Tight is right from early position</div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- POSTFLOP -->
+<section class="postflop-section" id="postflop">
+  <div class="section-icon">🃏</div>
+  <h2 class="section-title">Postflop Strategy</h2>
+  <p class="section-subtitle">Street-by-street decision framework. The money is made after the flop.</p>
+
+  <div class="street-tabs">
+    <button class="street-tab active" data-street="flop">Flop</button>
+    <button class="street-tab" data-street="turn">Turn</button>
+    <button class="street-tab" data-street="river">River</button>
+  </div>
+
+  <div class="street-content active" id="street-flop">
+    <h3 style="margin-bottom:12px;">C-Bet Decision Framework</h3>
+    <table class="decision-table">
+      <thead><tr><th>Board Texture</th><th>You Have</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td>Dry (K♠ 7♥ 2♦)</td><td>Any pair+ or overcards</td><td class="action-bet">C-bet ~33% pot</td></tr>
+        <tr><td>Wet (J♠ T♥ 9♠)</td><td>Strong draws or made hands</td><td class="action-bet">C-bet 50-75% pot</td></tr>
+        <tr><td>Wet board</td><td>Nothing / weak draw</td><td class="action-check">Check — don't auto c-bet</td></tr>
+        <tr><td>Paired (K♦ 5♠ 5♣)</td><td>Overpair+</td><td class="action-bet">C-bet small (25-33%)</td></tr>
+        <tr><td>Ace-high (A♥ 8♦ 3♣)</td><td>You raised preflop</td><td class="action-bet">C-bet often, small sizing</td></tr>
+        <tr><td>Monotone (3♠ 7♠ J♠)</td><td>No flush / flush draw</td><td class="action-check">Slow down significantly</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="street-content" id="street-turn">
+    <h3 style="margin-bottom:12px;">Turn Play — Where the Money Is</h3>
+    <table class="decision-table">
+      <thead><tr><th>Situation</th><th>Action</th><th>Sizing</th></tr></thead>
+      <tbody>
+        <tr><td>You have top pair+ and bet flop</td><td class="action-bet">Double barrel for value</td><td>55-75% pot</td></tr>
+        <tr><td>Weak bluff that didn't improve</td><td class="action-fold">Give up — sunk cost is irrelevant</td><td>—</td></tr>
+        <tr><td>Strong draw (flush draw + overcards)</td><td class="action-bet">Semi-bluff aggressively</td><td>60-75% pot</td></tr>
+        <tr><td>Medium-strength hand (2nd pair, weak TP)</td><td class="action-check">Pot control — check behind or call</td><td>—</td></tr>
+        <tr><td>Opponent checks twice (capped range)</td><td class="action-bet">Bet wide for value + thin bluffs</td><td>50-66% pot</td></tr>
+        <tr><td>Scare card arrives matching opponent's range</td><td class="action-bet">Good bluff opportunity</td><td>66-75% pot</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="street-content" id="street-river">
+    <h3 style="margin-bottom:12px;">River Play — Maximize Value, Minimize Mistakes</h3>
+    <table class="decision-table">
+      <thead><tr><th>Situation</th><th>Action</th><th>Key Insight</th></tr></thead>
+      <tbody>
+        <tr><td>You think you're good >50% of time</td><td class="action-bet">Value bet thin</td><td>Most players under-bet rivers</td></tr>
+        <tr><td>You want called by 2nd best hands</td><td class="action-bet">Big bet: 75-100% pot</td><td>Polarized sizing</td></tr>
+        <tr><td>You want called by marginal holdings</td><td class="action-bet">Small bet: 25-33% pot</td><td>Wide-call sizing</td></tr>
+        <tr><td>Missed draw, no showdown value</td><td class="action-bet">Bluff — perfect candidate</td><td>Use blockers to decide</td></tr>
+        <tr><td>Medium hand vs aggression</td><td class="action-check">Call or fold based on pot odds</td><td>You need to win 1/(1+pot:bet) %</td></tr>
+        <tr><td>Facing calling station on river</td><td class="action-fold">NEVER bluff. Value bet relentlessly.</td><td>They call. That's what they do.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- PLAYER TYPES -->
+<section class="phases-section" id="players">
+  <div class="section-icon">👥</div>
+  <h2 class="section-title">Know Your Opponents</h2>
+  <p class="section-subtitle">Identify the player type, apply the exploit. Rinse and repeat.</p>
+
+  <div class="players-grid">
+    <div class="player-card">
+      <div class="player-emoji">🪨</div>
+      <div class="player-name">The Nit</div>
+      <div class="player-stats">VPIP 8% / PFR 6%</div>
+      <div class="player-how">Steal their blinds relentlessly. When they raise — fold everything but the nuts. Their raise = AA-QQ, AK. Period.</div>
+    </div>
+    <div class="player-card">
+      <div class="player-emoji">🎯</div>
+      <div class="player-name">The TAG</div>
+      <div class="player-stats">VPIP 22% / PFR 18%</div>
+      <div class="player-how">Solid player. Respect their raises. 3-bet light occasionally to keep them honest. Avoid big pots without big hands.</div>
+    </div>
+    <div class="player-card">
+      <div class="player-emoji">🔥</div>
+      <div class="player-name">The LAG</div>
+      <div class="player-stats">VPIP 28% / PFR 24%</div>
+      <div class="player-how">Dangerous. Trap with strong hands. Call down lighter than normal. Don't try to out-aggro them — let them bluff into you.</div>
+    </div>
+    <div class="player-card">
+      <div class="player-emoji">📞</div>
+      <div class="player-name">The Calling Station</div>
+      <div class="player-stats">VPIP 40% / PFR 8%</div>
+      <div class="player-how">Your ATM. Value bet relentlessly with any top pair+. NEVER bluff. Bet every street for value. They will call you down with 3rd pair.</div>
+    </div>
+    <div class="player-card">
+      <div class="player-emoji">💣</div>
+      <div class="player-name">The Maniac</div>
+      <div class="player-stats">VPIP 55% / PFR 40%</div>
+      <div class="player-how">Let them hang themselves. Tighten up preflop, then call down with medium+ strength hands. They're giving you their money — just be patient.</div>
+    </div>
+    <div class="player-card">
+      <div class="player-emoji">🐟</div>
+      <div class="player-name">The Fish</div>
+      <div class="player-stats">VPIP 50% / PFR 10%</div>
+      <div class="player-how">Limps too much, calls too much. Isolate with raises preflop. Value bet wide postflop. Keep pots simple — they'll make the mistakes for you.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- LIVE TELLS -->
+<section class="phases-section" id="tells">
+  <div class="section-icon">👀</div>
+  <h2 class="section-title">Live Tells</h2>
+  <p class="section-subtitle">Physical tells for live poker. Weak means strong, strong means weak.</p>
+
+  <div class="tells-grid">
+    <div class="tell-card">
+      <div class="tell-sign">🫨 Shaking hands when betting</div>
+      <div class="tell-meaning strong">→ STRONG (adrenaline, not nerves)</div>
+    </div>
+    <div class="tell-card">
+      <div class="tell-sign">👁️ Staring at you after betting</div>
+      <div class="tell-meaning weak">→ WEAK (trying to intimidate)</div>
+    </div>
+    <div class="tell-card">
+      <div class="tell-sign">😴 Looking away / disinterested</div>
+      <div class="tell-meaning strong">→ STRONG (acting non-threatening)</div>
+    </div>
+    <div class="tell-card">
+      <div class="tell-sign">⚡ Snap-calling</div>
+      <div class="tell-meaning" style="color:var(--yellow)">→ MEDIUM (strong would raise, weak would fold)</div>
+    </div>
+    <div class="tell-card">
+      <div class="tell-sign">⏳ Long tank → raise</div>
+      <div class="tell-meaning strong">→ Almost always STRONG</div>
+    </div>
+    <div class="tell-card">
+      <div class="tell-sign">💥 Splashing chips loudly</div>
+      <div class="tell-meaning weak">→ Often WEAK (theatrical)</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- RESOURCES -->
+<section class="resources-section" id="resources">
+  <div class="section-icon">🎓</div>
+  <h2 class="section-title">Best Learning Resources</h2>
+  <p class="section-subtitle">Curated from the best poker training content available. Start at Tier 1.</p>
+
+  <div class="resource-tier">
+    <div class="tier-header"><span class="tier-badge">🥇</span><h3>Tier 1 — Essential (FREE on YouTube)</h3></div>
+    <div class="resource-list">
+      <a href="https://www.youtube.com/watch?v=wHzXwmFmdVI" target="_blank" class="resource-item">
+        <span class="r-num">1</span>
+        <div class="r-info"><h4>Jonathan Little — Crushing Small Stakes (7-part series)</h4><p>Complete foundation for $1/$2 and $2/$5 cash games</p></div>
+      </a>
+      <a href="https://www.youtube.com/watch?v=iu_G3f3Xna8" target="_blank" class="resource-item">
+        <span class="r-num">2</span>
+        <div class="r-info"><h4>Jonathan Little — CRUSH Live $1/$2 & $2/$5</h4><p>Live webinar — everything you need for low-stakes live games</p></div>
+      </a>
+      <a href="https://www.youtube.com/@CrushLivePoker" target="_blank" class="resource-item">
+        <span class="r-num">3</span>
+        <div class="r-info"><h4>Bart Hanson — Crush Live Poker</h4><p>Best hand-reading instruction for live cash games</p></div>
+      </a>
+      <a href="https://www.youtube.com/@DougPolk" target="_blank" class="resource-item">
+        <span class="r-num">4</span>
+        <div class="r-info"><h4>Doug Polk — Upswing Poker</h4><p>GTO theory explained clearly + entertainment value</p></div>
+      </a>
+      <a href="https://www.youtube.com/@BradOwenPoker" target="_blank" class="resource-item">
+        <span class="r-num">5</span>
+        <div class="r-info"><h4>Brad Owen — Poker Vlogs</h4><p>See correct play in action at $1/$2 and $2/$5 live sessions</p></div>
+      </a>
+    </div>
+  </div>
+
+  <div class="resource-tier">
+    <div class="tier-header"><span class="tier-badge">🥈</span><h3>Tier 2 — Level Up</h3></div>
+    <div class="resource-list">
+      <a href="https://www.youtube.com/@RaiseYourEdge" target="_blank" class="resource-item">
+        <span class="r-num">6</span>
+        <div class="r-info"><h4>Raise Your Edge (Bencb)</h4><p>Tournament specialist — excellent MTT strategy content</p></div>
+      </a>
+      <a href="https://www.youtube.com/@BBZPoker" target="_blank" class="resource-item">
+        <span class="r-num">7</span>
+        <div class="r-info"><h4>BBZ Poker</h4><p>Advanced tournament strategy from a crusher</p></div>
+      </a>
+      <a href="https://www.youtube.com/@PhilGalfond" target="_blank" class="resource-item">
+        <span class="r-num">8</span>
+        <div class="r-info"><h4>Phil Galfond</h4><p>Deep poker theory from Run It Once founder</p></div>
+      </a>
+    </div>
+  </div>
+
+  <div class="resource-tier">
+    <div class="tier-header"><span class="tier-badge">📚</span><h3>Books — In Reading Order</h3></div>
+    <div class="resource-list">
+      <div class="resource-item">
+        <span class="r-num">1</span>
+        <div class="r-info"><h4>The Grinder's Manual — Peter Clarke</h4><p>Beginner → Intermediate. The best first poker book.</p></div>
+      </div>
+      <div class="resource-item">
+        <span class="r-num">2</span>
+        <div class="r-info"><h4>Crushing the Microstakes — BlackRain79</h4><p>Micro stakes online specialist guide</p></div>
+      </div>
+      <div class="resource-item">
+        <span class="r-num">3</span>
+        <div class="r-info"><h4>Applications of No-Limit Hold'em — Matthew Janda</h4><p>Intermediate → Advanced. Mathematical approach.</p></div>
+      </div>
+      <div class="resource-item">
+        <span class="r-num">4</span>
+        <div class="r-info"><h4>Modern Poker Theory — Michael Acevedo</h4><p>Advanced GTO concepts</p></div>
+      </div>
+      <div class="resource-item">
+        <span class="r-num">5</span>
+        <div class="r-info"><h4>The Mental Game of Poker — Jared Tendler</h4><p>All levels — tilt control and psychology</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="resource-tier">
+    <div class="tier-header"><span class="tier-badge">🛠️</span><h3>Tools</h3></div>
+    <div class="resource-list">
+      <a href="https://gtowizard.com" target="_blank" class="resource-item">
+        <span class="r-num">★</span>
+        <div class="r-info"><h4>GTO Wizard ($59/mo)</h4><p>GTO ranges, solver, drills — the gold standard</p></div>
+      </a>
+      <a href="https://pokertrainer.se" target="_blank" class="resource-item">
+        <span class="r-num">★</span>
+        <div class="r-info"><h4>PokerTrainer (FREE)</h4><p>Free preflop range practice and quizzes</p></div>
+      </a>
+      <a href="https://pokercoaching.com/preflop-charts" target="_blank" class="resource-item">
+        <span class="r-num">★</span>
+        <div class="r-info"><h4>PokerCoaching Preflop Charts (FREE)</h4><p>Downloadable preflop charts by position</p></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- MILESTONES -->
+<section class="milestones-section" id="milestones">
+  <div class="section-icon">🏆</div>
+  <h2 class="section-title">Your Milestone Tracker</h2>
+  <p class="section-subtitle">Progressive levels. Each one builds on the last.</p>
+
+  <div class="milestone unlocked">
+    <h3>Level 1 — Stop Bleeding</h3>
+    <p class="m-desc">Go from losing player to breakeven. Follow the charts, do the SCAN.</p>
+    <ul class="milestone-checks">
+      <li>VPIP under 30% for 1,000+ hands</li>
+      <li>Following preflop charts 90%+ of the time</li>
+      <li>Breakeven or better over 5,000 hands / 50 hours live</li>
+      <li>Never open-limp (always raise or fold)</li>
+    </ul>
+  </div>
+
+  <div class="milestone">
+    <h3>Level 2 — I'm Winning</h3>
+    <p class="m-desc">Consistent profit at low stakes. You're better than most at the table.</p>
+    <ul class="milestone-checks">
+      <li>Positive win rate over 10,000 hands / 100 hours</li>
+      <li>C-bet frequency between 50-65%</li>
+      <li>Can identify all 5 player types at the table</li>
+      <li>Fold to 3-bet under 70%</li>
+    </ul>
+  </div>
+
+  <div class="milestone">
+    <h3>Level 3 — I'm Crushing</h3>
+    <p class="m-desc">Solid win rate. You're one of the best players in your game.</p>
+    <ul class="milestone-checks">
+      <li>Win rate >5bb/100 online or >$15/hr live ($1/$2)</li>
+      <li>3-bet frequency >7%</li>
+      <li>Using different bet sizes on different board textures</li>
+      <li>Can narrow opponents to 2-3 possible holdings by river</li>
+    </ul>
+  </div>
+
+  <div class="milestone">
+    <h3>Level 4 — Dominating</h3>
+    <p class="m-desc">Elite player. You're the one others are trying to avoid.</p>
+    <ul class="milestone-checks">
+      <li>Win rate >8bb/100 online or >$25/hr live ($1/$2)</li>
+      <li>Comfortable with GTO ranges and exploitative adjustments</li>
+      <li>Exploiting specific player tendencies in real-time</li>
+      <li>Bankroll management discipline (20+ buy-ins always)</li>
+    </ul>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- CHEAT SHEET -->
+<section class="cheatsheet-section" id="cheatsheet">
+  <div class="section-icon">📋</div>
+  <h2 class="section-title">Print-Ready Cheat Sheet</h2>
+  <p class="section-subtitle">Ctrl+P this section. Take it to the table (mentally for live, literally for online).</p>
+
+  <div class="cheat-cards">
+    <div class="cheat-card">
+      <h3>🎯 Pre-Session</h3>
+      <ul>
+        <li>☐ Am I in the right mental state?</li>
+        <li>☐ Do I have a stop-loss set?</li>
+        <li>☐ Do I have a time limit?</li>
+        <li>☐ Is this game good? (Bad players present?)</li>
+        <li>☐ Am I well-rested and focused?</li>
+      </ul>
+    </div>
+    <div class="cheat-card">
+      <h3>🧠 Every Hand (SCAN)</h3>
+      <ul>
+        <li>☐ Position — where am I?</li>
+        <li>☐ Range — is this in my range here?</li>
+        <li>☐ Opponents — who's left to act?</li>
+        <li>☐ Stacks — what's effective?</li>
+      </ul>
+    </div>
+    <div class="cheat-card">
+      <h3>🃏 Postflop</h3>
+      <ul>
+        <li>☐ Board texture — dry/wet/paired?</li>
+        <li>☐ My hand vs their range?</li>
+        <li>☐ Am I betting for value, bluff, or protection?</li>
+        <li>☐ What sizing achieves my goal?</li>
+      </ul>
+    </div>
+    <div class="cheat-card">
+      <h3>⚠️ The 5 Commandments</h3>
+      <ul>
+        <li>1. Don't play trash hands</li>
+        <li>2. Don't call OOP with marginal hands</li>
+        <li>3. Bet for value — stop slowplaying</li>
+        <li>4. Don't bluff calling stations</li>
+        <li>5. Fold to aggression with mediocre hands</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>♠ Crush Poker © 2026 — Built with 🃏 by <a href="https://github.com/darfaz" target="_blank">darfaz</a></p>
+  <p style="margin-top:8px;">Inspired by <a href="https://1000elo.com" target="_blank">1000elo.com</a>'s approach to chess improvement.</p>
+</footer>
+
+<script>
+// ===== RANGE DATA =====
+const HANDS = [
+  ['AA','AKs','AQs','AJs','ATs','A9s','A8s','A7s','A6s','A5s','A4s','A3s','A2s'],
+  ['AKo','KK','KQs','KJs','KTs','K9s','K8s','K7s','K6s','K5s','K4s','K3s','K2s'],
+  ['AQo','KQo','QQ','QJs','QTs','Q9s','Q8s','Q7s','Q6s','Q5s','Q4s','Q3s','Q2s'],
+  ['AJo','KJo','QJo','JJ','JTs','J9s','J8s','J7s','J6s','J5s','J4s','J3s','J2s'],
+  ['ATo','KTo','QTo','JTo','TT','T9s','T8s','T7s','T6s','T5s','T4s','T3s','T2s'],
+  ['A9o','K9o','Q9o','J9o','T9o','99','98s','97s','96s','95s','94s','93s','92s'],
+  ['A8o','K8o','Q8o','J8o','T8o','98o','88','87s','86s','85s','84s','83s','82s'],
+  ['A7o','K7o','Q7o','J7o','T7o','97o','87o','77','76s','75s','74s','73s','72s'],
+  ['A6o','K6o','Q6o','J6o','T6o','96o','86o','76o','66','65s','64s','63s','62s'],
+  ['A5o','K5o','Q5o','J5o','T5o','95o','85o','75o','65o','55','54s','53s','52s'],
+  ['A4o','K4o','Q4o','J4o','T4o','94o','84o','74o','64o','54o','44','43s','42s'],
+  ['A3o','K3o','Q3o','J3o','T3o','93o','83o','73o','63o','53o','43o','33','32s'],
+  ['A2o','K2o','Q2o','J2o','T2o','92o','82o','72o','62o','52o','42o','32o','22']
+];
+
+// Position ranges - 'r'=raise, 'o'=optional, 'c'=call(BB), '3'=3bet(BB), ''=fold
+const RANGES = {
+  utg: {
+    pct: '15%',
+    label: 'of hands — Tight is right from early position',
+    data: {
+      'AA':'r','KK':'r','QQ':'r','JJ':'r','TT':'r','99':'r','88':'r','77':'r','66':'r',
+      '55':'r','44':'r','33':'r','22':'r',
+      'AKs':'r','AQs':'r','AJs':'r','ATs':'r','A5s':'r','A4s':'r','A3s':'r','A2s':'r',
+      'AKo':'r','AQo':'r','AJo':'r','ATo':'r',
+      'KQs':'r','KJs':'r','KTs':'r','KQo':'o',
+      'QJs':'r','QTs':'r',
+      'JTs':'r','J9s':'o',
+      'T9s':'r',
+      '98s':'o','87s':'o'
+    }
+  },
+  mp: {
+    pct: '18%',
+    label: 'of hands — Slightly wider, still disciplined',
+    data: {
+      'AA':'r','KK':'r','QQ':'r','JJ':'r','TT':'r','99':'r','88':'r','77':'r','66':'r',
+      '55':'r','44':'r','33':'r','22':'r',
+      'AKs':'r','AQs':'r','AJs':'r','ATs':'r','A9s':'r','A5s':'r','A4s':'r','A3s':'r','A2s':'r',
+      'AKo':'r','AQo':'r','AJo':'r','ATo':'r',
+      'KQs':'r','KJs':'r','KTs':'r','K9s':'o','KQo':'r','KJo':'o',
+      'QJs':'r','QTs':'r','Q9s':'o','QJo':'o',
+      'JTs':'r','J9s':'r',
+      'T9s':'r','T8s':'o',
+      '98s':'r','87s':'o','76s':'o'
+    }
+  },
+  co: {
+    pct: '27%',
+    label: 'of hands — Open up, you have position on most players',
+    data: {
+      'AA':'r','KK':'r','QQ':'r','JJ':'r','TT':'r','99':'r','88':'r','77':'r','66':'r',
+      '55':'r','44':'r','33':'r','22':'r',
+      'AKs':'r','AQs':'r','AJs':'r','ATs':'r','A9s':'r','A8s':'r','A7s':'r','A6s':'r','A5s':'r','A4s':'r','A3s':'r','A2s':'r',
+      'AKo':'r','AQo':'r','AJo':'r','ATo':'r','A9o':'r','A8o':'o','A7o':'o',
+      'KQs':'r','KJs':'r','KTs':'r','K9s':'r','K8s':'o','K7s':'o','K6s':'o','K5s':'o','K4s':'o','K3s':'o','K2s':'o',
+      'KQo':'r','KJo':'r','KTo':'o','K9o':'o',
+      'QJs':'r','QTs':'r','Q9s':'r','Q8s':'r','QJo':'r','QTo':'o',
+      'JTs':'r','J9s':'r','J8s':'r','JTo':'o',
+      'T9s':'r','T8s':'r',
+      '98s':'r','97s':'r',
+      '87s':'r','86s':'o',
+      '76s':'r','75s':'o',
+      '65s':'r','64s':'o',
+      '54s':'o'
+    }
+  },
+  btn: {
+    pct: '45%',
+    label: 'of hands — Best position. Open wide and steal blinds.',
+    data: {
+      'AA':'r','KK':'r','QQ':'r','JJ':'r','TT':'r','99':'r','88':'r','77':'r','66':'r',
+      '55':'r','44':'r','33':'r','22':'r',
+      'AKs':'r','AQs':'r','AJs':'r','ATs':'r','A9s':'r','A8s':'r','A7s':'r','A6s':'r','A5s':'r','A4s':'r','A3s':'r','A2s':'r',
+      'AKo':'r','AQo':'r','AJo':'r','ATo':'r','A9o':'r','A8o':'r','A7o':'r','A6o':'r','A5o':'r','A4o':'r','A3o':'r','A2o':'r',
+      'KQs':'r','KJs':'r','KTs':'r','K9s':'r','K8s':'r','K7s':'r','K6s':'r','K5s':'r','K4s':'r','K3s':'r','K2s':'r',
+      'KQo':'r','KJo':'r','KTo':'r','K9o':'r','K8o':'o','K7o':'o','K6o':'o','K5o':'r',
+      'QJs':'r','QTs':'r','Q9s':'r','Q8s':'r','Q7s':'r','Q6s':'r','Q5s':'r','Q4s':'r','Q3s':'r','Q2s':'r',
+      'QJo':'r','QTo':'r','Q9o':'r','Q8o':'r',
+      'JTs':'r','J9s':'r','J8s':'r','J7s':'r','J6s':'r','J5s':'r',
+      'JTo':'r','J9o':'r','J8o':'r',
+      'T9s':'r','T8s':'r','T7s':'r','T6s':'r',
+      'T9o':'r','T8o':'r',
+      '98s':'r','97s':'r','96s':'r',
+      '98o':'r',
+      '87s':'r','86s':'r','85s':'r',
+      '76s':'r','75s':'r','74s':'r',
+      '65s':'r','64s':'r',
+      '54s':'r','53s':'o',
+      '43s':'o'
+    }
+  },
+  sb: {
+    pct: '40%',
+    label: 'of hands — Raise or fold. NEVER limp from the SB.',
+    data: {
+      'AA':'r','KK':'r','QQ':'r','JJ':'r','TT':'r','99':'r','88':'r','77':'r','66':'r',
+      '55':'r','44':'r','33':'r','22':'r',
+      'AKs':'r','AQs':'r','AJs':'r','ATs':'r','A9s':'r','A8s':'r','A7s':'r','A6s':'r','A5s':'r','A4s':'r','A3s':'r','A2s':'r',
+      'AKo':'r','AQo':'r','AJo':'r','ATo':'r','A9o':'r','A8o':'r','A7o':'r','A6o':'r','A5o':'r','A4o':'r','A3o':'r','A2o':'r',
+      'KQs':'r','KJs':'r','KTs':'r','K9s':'r','K8s':'r','K7s':'r','K6s':'r','K5s':'r','K4s':'r','K3s':'r','K2s':'r',
+      'KQo':'r','KJo':'r','KTo':'r','K9o':'r','K8o':'o','K7o':'r',
+      'QJs':'r','QTs':'r','Q9s':'r','Q8s':'r','Q7s':'r','Q6s':'r','Q5s':'r',
+      'QJo':'r','QTo':'r','Q9o':'r',
+      'JTs':'r','J9s':'r','J8s':'r','J7s':'r',
+      'JTo':'r','J9o':'r',
+      'T9s':'r','T8s':'r','T7s':'r',
+      'T9o':'r',
+      '98s':'r','97s':'r',
+      '87s':'r','86s':'r',
+      '76s':'r','75s':'o',
+      '65s':'r','64s':'o',
+      '54s':'o'
+    }
+  },
+  bb: {
+    pct: '~60%',
+    label: 'of hands — Defend wide (getting great odds). 3-bet for value + bluffs.',
+    data: {
+      'AA':'3','KK':'3','QQ':'3','JJ':'3','TT':'3','99':'c','88':'c','77':'c','66':'c',
+      '55':'c','44':'c','33':'c','22':'c',
+      'AKs':'3','AQs':'3','AJs':'3','ATs':'c','A9s':'c','A8s':'c','A7s':'c','A6s':'c','A5s':'3','A4s':'3','A3s':'3','A2s':'3',
+      'AKo':'3','AQo':'c','AJo':'c','ATo':'c','A9o':'c','A8o':'c','A7o':'c','A6o':'c','A5o':'c','A4o':'c','A3o':'c','A2o':'c',
+      'KQs':'3','KJs':'c','KTs':'c','K9s':'c','K8s':'c','K7s':'c','K6s':'c','K5s':'c','K4s':'c','K3s':'c','K2s':'c',
+      'KQo':'c','KJo':'c','KTo':'c','K9o':'c','K8o':'c','K7o':'c','K6o':'c','K5o':'c',
+      'QJs':'c','QTs':'c','Q9s':'c','Q8s':'c','Q7s':'c','Q6s':'c','Q5s':'c','Q4s':'c','Q3s':'c','Q2s':'c',
+      'QJo':'c','QTo':'c','Q9o':'c','Q8o':'c',
+      'JTs':'c','J9s':'c','J8s':'c','J7s':'c','J6s':'c','J5s':'c',
+      'JTo':'c','J9o':'c','J8o':'c',
+      'T9s':'c','T8s':'c','T7s':'c','T6s':'c',
+      'T9o':'c','T8o':'c',
+      '98s':'c','97s':'c','96s':'c','95s':'c',
+      '98o':'c',
+      '87s':'c','86s':'c','85s':'c',
+      '87o':'c',
+      '76s':'c','75s':'c','74s':'c',
+      '65s':'c','64s':'c',
+      '54s':'c','53s':'c',
+      '43s':'c'
+    }
+  }
+};
+
+function renderRange(pos) {
+  const chart = document.getElementById('range-chart');
+  const data = RANGES[pos].data;
+  let html = '<div class="range-grid">';
+  for (let r = 0; r < 13; r++) {
+    for (let c = 0; c < 13; c++) {
+      const hand = HANDS[r][c];
+      const action = data[hand] || '';
+      let cls = '';
+      if (action === 'r') cls = 'raise';
+      else if (action === 'o') cls = 'optional';
+      else if (action === 'c') cls = 'call';
+      else if (action === '3') cls = 'threebet';
+      html += `<div class="range-cell ${cls}" title="${hand}">${hand}</div>`;
+    }
+  }
+  html += '</div>';
+  chart.innerHTML = html;
+  document.getElementById('range-pct').textContent = RANGES[pos].pct;
+  document.getElementById('range-label').textContent = RANGES[pos].label;
+}
+
+// Position tabs
+document.querySelectorAll('.pos-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.pos-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    renderRange(tab.dataset.pos);
+  });
+});
+
+// Street tabs
+document.querySelectorAll('.street-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.street-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.street-content').forEach(c => c.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('street-' + tab.dataset.street).classList.add('active');
+  });
+});
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const el = document.querySelector(a.getAttribute('href'));
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+// Init
+renderRange('utg');
+</script>
+</body>
+</html>
