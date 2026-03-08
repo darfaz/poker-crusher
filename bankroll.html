@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bankroll Management — Cogent Poker</title>
+<meta name="description" content="Bankroll management, Kelly Criterion, session limits, and probability-adjusted win rate analysis for poker players.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0f1c; --bg2: #111827; --bg3: #1a2332; --card: #1e293b; --border: #2d3a4d;
+  --green: #22c55e; --red: #ef4444; --blue: #3b82f6; --yellow: #eab308; --orange: #f97316;
+  --purple: #a855f7; --text: #f1f5f9; --text2: #94a3b8; --text3: #64748b; --gold: #fbbf24;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+
+.nav { position:fixed; top:0; left:0; right:0; z-index:100; background:rgba(10,15,28,0.95); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; }
+.nav-brand { font-weight:800; font-size:1.1rem; color:var(--green); text-decoration:none; }
+.nav-links { display:flex; gap:20px; }
+.nav-links a { color:var(--text2); text-decoration:none; font-size:.85rem; font-weight:500; }
+.nav-links a:hover { color:var(--green); }
+
+.container { max-width:1000px; margin:0 auto; padding:80px 20px 60px; }
+
+h1 { font-size:2.2rem; font-weight:900; margin-bottom:8px; }
+h1 span { color:var(--green); }
+.subtitle { color:var(--text2); margin-bottom:40px; font-size:1.05rem; }
+
+h2 { font-size:1.4rem; font-weight:800; margin:48px 0 16px; display:flex; align-items:center; gap:10px; }
+h3 { font-size:1.1rem; font-weight:700; margin:24px 0 12px; }
+
+.card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:28px; margin-bottom:20px; }
+.card-green { border-color:var(--green); }
+
+/* FORMS */
+label { display:block; font-size:.85rem; color:var(--text2); margin-bottom:4px; font-weight:500; }
+input[type="number"], select {
+  width:100%; padding:10px 14px; border-radius:8px; background:var(--bg3); border:1px solid var(--border);
+  color:var(--text); font-family:'JetBrains Mono',monospace; font-size:.9rem; margin-bottom:12px;
+}
+input:focus, select:focus { outline:none; border-color:var(--green); }
+
+.btn { display:inline-block; padding:12px 28px; border-radius:10px; font-weight:700; font-size:.95rem;
+  cursor:pointer; border:none; transition:all 0.2s; font-family:'Inter',sans-serif; }
+.btn-primary { background:var(--green); color:#000; }
+.btn-primary:hover { background:#4ade80; transform:translateY(-2px); }
+.btn-outline { background:transparent; color:var(--text); border:2px solid var(--border); }
+.btn-outline:hover { border-color:var(--green); color:var(--green); }
+
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+@media(max-width:640px) { .grid-2,.grid-3 { grid-template-columns:1fr; } }
+
+/* RESULTS */
+.result-box { background:var(--bg3); border:1px solid var(--border); border-radius:10px; padding:20px; text-align:center; }
+.result-big { font-family:'JetBrains Mono',monospace; font-size:2rem; font-weight:800; }
+.result-label { font-size:.8rem; color:var(--text3); margin-top:4px; }
+.result-good { color:var(--green); }
+.result-warn { color:var(--yellow); }
+.result-bad { color:var(--red); }
+
+/* TABLE */
+.data-table { width:100%; border-collapse:separate; border-spacing:0; border-radius:10px; overflow:hidden; margin:16px 0; }
+.data-table th { background:var(--bg3); padding:10px 16px; text-align:left; font-weight:600; font-size:.8rem; color:var(--text2); border-bottom:1px solid var(--border); }
+.data-table td { background:var(--card); padding:10px 16px; border-bottom:1px solid var(--border); font-size:.85rem; }
+.data-table tr:last-child td { border-bottom:none; }
+
+/* CHARTS */
+.bar-chart { display:flex; flex-direction:column; gap:8px; margin:16px 0; }
+.bar-row { display:flex; align-items:center; gap:10px; }
+.bar-label { min-width:100px; font-size:.8rem; color:var(--text2); text-align:right; }
+.bar-track { flex:1; height:24px; background:var(--bg3); border-radius:4px; overflow:hidden; position:relative; }
+.bar-fill { height:100%; border-radius:4px; transition:width 0.5s ease; display:flex; align-items:center; padding:0 8px; font-size:.7rem; font-weight:600; }
+.bar-value { font-family:'JetBrains Mono',monospace; font-size:.75rem; color:var(--text2); min-width:50px; }
+
+/* SESSION LOG */
+.session-entry { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); font-size:.85rem; }
+.session-entry:last-child { border-bottom:none; }
+
+/* TIPS */
+.tip { background:rgba(34,197,94,0.08); border-left:3px solid var(--green); padding:12px 16px; border-radius:0 8px 8px 0; margin:16px 0; font-size:.9rem; color:var(--text2); }
+.tip strong { color:var(--green); }
+
+.warning { background:rgba(239,68,68,0.08); border-left:3px solid var(--red); padding:12px 16px; border-radius:0 8px 8px 0; margin:16px 0; font-size:.9rem; color:var(--text2); }
+.warning strong { color:var(--red); }
+
+hr { border:none; height:1px; background:var(--border); margin:40px 0; }
+
+.mono { font-family:'JetBrains Mono',monospace; }
+footer { text-align:center; padding:40px 20px; color:var(--text3); font-size:.8rem; border-top:1px solid var(--border); margin-top:40px; }
+footer a { color:var(--green); text-decoration:none; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="nav-brand">♠ Cogent Poker</a>
+  <div class="nav-links">
+    <a href="index.html">Strategy</a>
+    <a href="play.html">Play & Train</a>
+    <a href="bankroll.html" style="color:var(--green);font-weight:700;">Bankroll 💰</a>
+  </div>
+</nav>
+
+<div class="container">
+
+<h1>💰 <span>Bankroll</span> Management</h1>
+<p class="subtitle">The math behind staying in the game. Session limits, Kelly Criterion, and probability-adjusted analysis.</p>
+
+<!-- ============================================================ -->
+<!-- BANKROLL CALCULATOR -->
+<!-- ============================================================ -->
+<h2>🏦 Bankroll Requirements</h2>
+<p style="color:var(--text2);margin-bottom:16px;">How big should your bankroll be? It depends on your win rate, variance, and risk tolerance.</p>
+
+<div class="card">
+  <div class="grid-3">
+    <div>
+      <label>Game Stakes</label>
+      <select id="br-stakes" onchange="calcBankroll()">
+        <option value="2">$1/$2 (BB = $2)</option>
+        <option value="5">$2/$5 (BB = $5)</option>
+        <option value="10">$5/$10 (BB = $10)</option>
+        <option value="0.02">NL2 (BB = $0.02)</option>
+        <option value="0.10">NL10 (BB = $0.10)</option>
+        <option value="0.50">NL50 (BB = $0.50)</option>
+      </select>
+    </div>
+    <div>
+      <label>Your Win Rate (bb/100)</label>
+      <input type="number" id="br-winrate" value="5" step="0.5" onchange="calcBankroll()">
+    </div>
+    <div>
+      <label>Risk of Ruin Tolerance</label>
+      <select id="br-risk" onchange="calcBankroll()">
+        <option value="1">1% (Conservative)</option>
+        <option value="5" selected>5% (Standard)</option>
+        <option value="10">10% (Aggressive)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="grid-3" style="margin-top:16px;">
+    <div class="result-box">
+      <div class="result-big result-good" id="br-buyins">20</div>
+      <div class="result-label">Buy-ins Recommended</div>
+    </div>
+    <div class="result-box">
+      <div class="result-big result-good" id="br-dollars">$4,000</div>
+      <div class="result-label">Bankroll Size</div>
+    </div>
+    <div class="result-box">
+      <div class="result-big" id="br-ror" style="color:var(--yellow)">5%</div>
+      <div class="result-label">Risk of Ruin</div>
+    </div>
+  </div>
+
+  <table class="data-table" style="margin-top:20px;">
+    <thead><tr><th>Profile</th><th>Buy-ins</th><th>Bankroll</th><th>Risk of Ruin</th><th>Who It's For</th></tr></thead>
+    <tbody id="br-table"></tbody>
+  </table>
+</div>
+
+<div class="tip"><strong>Rule of thumb:</strong> 20 buy-ins for live cash, 30 buy-ins for online cash, 50+ buy-ins for tournaments. The higher the variance, the bigger the bankroll you need.</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- KELLY CRITERION -->
+<!-- ============================================================ -->
+<h2>📐 Kelly Criterion Calculator</h2>
+<p style="color:var(--text2);margin-bottom:16px;">The Kelly Criterion tells you the optimal fraction of your bankroll to risk on a single bet/session to maximize long-term growth while minimizing ruin.</p>
+
+<div class="card card-green">
+  <div style="text-align:center;margin-bottom:20px;">
+    <div style="font-size:1.2rem;color:var(--text2);">Kelly Formula</div>
+    <div class="mono" style="font-size:1.8rem;margin:8px 0;color:var(--green);">f* = (bp − q) / b</div>
+    <div style="font-size:.8rem;color:var(--text3);">b = odds received (net win/loss ratio) &nbsp;|&nbsp; p = probability of winning &nbsp;|&nbsp; q = probability of losing (1−p)</div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <label>Win Rate (sessions won %)</label>
+      <input type="number" id="kelly-winpct" value="55" step="1" min="1" max="99" onchange="calcKelly()">
+    </div>
+    <div>
+      <label>Average Win / Average Loss Ratio</label>
+      <input type="number" id="kelly-ratio" value="1.2" step="0.1" min="0.1" onchange="calcKelly()">
+    </div>
+    <div>
+      <label>Your Current Bankroll ($)</label>
+      <input type="number" id="kelly-bankroll" value="5000" step="100" onchange="calcKelly()">
+    </div>
+    <div>
+      <label>Fraction to Use (% of Kelly)</label>
+      <select id="kelly-fraction" onchange="calcKelly()">
+        <option value="0.25">Quarter Kelly (25%) — Ultra Conservative</option>
+        <option value="0.5" selected>Half Kelly (50%) — Recommended</option>
+        <option value="0.75">Three-Quarter Kelly (75%)</option>
+        <option value="1.0">Full Kelly (100%) — Maximum Growth</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="grid-3" style="margin-top:20px;">
+    <div class="result-box">
+      <div class="result-big" id="kelly-full" style="color:var(--green);">10.0%</div>
+      <div class="result-label">Full Kelly %</div>
+    </div>
+    <div class="result-box">
+      <div class="result-big" id="kelly-adjusted" style="color:var(--gold);">5.0%</div>
+      <div class="result-label">Your Kelly (adjusted)</div>
+    </div>
+    <div class="result-box">
+      <div class="result-big" id="kelly-buyin" style="color:var(--green);">$250</div>
+      <div class="result-label">Max Buy-in Per Session</div>
+    </div>
+  </div>
+</div>
+
+<div class="warning"><strong>Never use Full Kelly.</strong> It's mathematically optimal but assumes perfect information about your edge. In practice, Half Kelly gives ~75% of the growth with dramatically less variance. Most pros use Quarter to Half Kelly.</div>
+
+<div class="card">
+  <h3>Kelly in Practice: What Fraction to Use</h3>
+  <table class="data-table">
+    <thead><tr><th>Fraction</th><th>Growth Rate</th><th>Max Drawdown</th><th>Best For</th></tr></thead>
+    <tbody>
+      <tr><td class="mono" style="color:var(--green)">Quarter Kelly (25%)</td><td>~44% of max</td><td>Minimal</td><td>New players, uncertain edge, high-variance games</td></tr>
+      <tr><td class="mono" style="color:var(--gold)">Half Kelly (50%)</td><td>~75% of max</td><td>Moderate</td><td>Most players — best risk/reward tradeoff</td></tr>
+      <tr><td class="mono" style="color:var(--orange)">¾ Kelly (75%)</td><td>~94% of max</td><td>Significant</td><td>Experienced players with proven edge</td></tr>
+      <tr><td class="mono" style="color:var(--red)">Full Kelly (100%)</td><td>Maximum</td><td>Severe (50%+ swings)</td><td>Theoretical only — don't do this</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- SESSION LIMITS -->
+<!-- ============================================================ -->
+<h2>⏱️ Session Limits</h2>
+<p style="color:var(--text2);margin-bottom:16px;">Pre-commit to session rules before you sit down. Discipline = profit.</p>
+
+<div class="card">
+  <div class="grid-2">
+    <div>
+      <label>Your Bankroll ($)</label>
+      <input type="number" id="sl-bankroll" value="5000" step="100" onchange="calcSession()">
+    </div>
+    <div>
+      <label>Game Stakes</label>
+      <select id="sl-stakes" onchange="calcSession()">
+        <option value="200">$1/$2 (Buy-in $200)</option>
+        <option value="500">$2/$5 (Buy-in $500)</option>
+        <option value="1000">$5/$10 (Buy-in $1,000)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="grid-3" style="margin-top:16px;">
+    <div class="result-box">
+      <div class="result-big result-bad" id="sl-stoploss">-$600</div>
+      <div class="result-label">Stop-Loss (3 buy-ins)</div>
+    </div>
+    <div class="result-box">
+      <div class="result-big result-good" id="sl-target">+$500</div>
+      <div class="result-label">Win Target (soft)</div>
+    </div>
+    <div class="result-box">
+      <div class="result-big" id="sl-time" style="color:var(--blue);">4-6 hrs</div>
+      <div class="result-label">Max Session Length</div>
+    </div>
+  </div>
+
+  <h3>Your Pre-Session Contract</h3>
+  <div style="background:var(--bg3);border-radius:10px;padding:20px;font-size:.9rem;color:var(--text2);line-height:1.8;" id="sl-contract">
+    Loading...
+  </div>
+</div>
+
+<div class="card">
+  <h3>Session Limit Rules</h3>
+  <table class="data-table">
+    <thead><tr><th>Rule</th><th>Limit</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Stop-Loss</strong></td><td style="color:var(--red)">3 buy-ins</td><td>Prevents tilt-induced mega-losses. You're not playing your best after 3 buy-ins down.</td></tr>
+      <tr><td><strong>Win Target</strong></td><td style="color:var(--green)">Soft — don't quit a good game</td><td>Leave if the game gets tough or you feel tired. Stay if fish are still paying you off.</td></tr>
+      <tr><td><strong>Time Limit</strong></td><td style="color:var(--blue)">4-6 hours</td><td>Decision quality degrades after ~4 hours. Take breaks every 90 minutes.</td></tr>
+      <tr><td><strong>Tilt Check</strong></td><td style="color:var(--orange)">After every big loss</td><td>Lost a big pot? Walk away for 10 minutes. If you're angry, leave.</td></tr>
+      <tr><td><strong>Table Change</strong></td><td style="color:var(--purple)">If no fish remain</td><td>You're there for profit, not ego. If the weak players leave, find a better table.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- WIN RATE ANALYZER -->
+<!-- ============================================================ -->
+<h2>📊 Win Rate Analyzer</h2>
+<p style="color:var(--text2);margin-bottom:16px;">Enter your session results. Get probability-adjusted analysis, true win rate estimation, and confidence intervals.</p>
+
+<div class="card">
+  <h3>Log Your Sessions</h3>
+  <div class="grid-3">
+    <div>
+      <label>Hours Played</label>
+      <input type="number" id="wr-hours" value="4" step="0.5" min="0.5">
+    </div>
+    <div>
+      <label>Result ($)</label>
+      <input type="number" id="wr-result" value="0" step="10">
+    </div>
+    <div>
+      <label>&nbsp;</label>
+      <button class="btn btn-primary" onclick="addSession()" style="width:100%;padding:10px;">Add Session</button>
+    </div>
+  </div>
+
+  <div id="wr-sessions" style="margin-top:16px;max-height:200px;overflow-y:auto;"></div>
+
+  <div style="display:flex;gap:8px;margin-top:12px;">
+    <button class="btn btn-outline" onclick="loadSampleData()" style="font-size:.8rem;padding:8px 16px;">Load Sample Data</button>
+    <button class="btn btn-outline" onclick="clearSessions()" style="font-size:.8rem;padding:8px 16px;">Clear All</button>
+    <button class="btn btn-outline" onclick="exportCSV()" style="font-size:.8rem;padding:8px 16px;">Export CSV</button>
+  </div>
+</div>
+
+<div class="card" id="wr-analysis" style="display:none;">
+  <h3>📈 Analysis</h3>
+  
+  <div class="grid-3" style="margin-bottom:20px;">
+    <div class="result-box">
+      <div class="result-big" id="wr-hourly">$0</div>
+      <div class="result-label">Hourly Rate ($/hr)</div>
+    </div>
+    <div class="result-box">
+      <div class="result-big" id="wr-bb100">0</div>
+      <div class="result-label">bb/100 Estimate</div>
+    </div>
+    <div class="result-box">
+      <div class="result-big" id="wr-total">$0</div>
+      <div class="result-label">Total P&L</div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:20px;">
+    <div class="result-box">
+      <div class="result-big" id="wr-winpct">0%</div>
+      <div class="result-label">Winning Session %</div>
+    </div>
+    <div class="result-box">
+      <div class="result-big" id="wr-stddev">$0</div>
+      <div class="result-label">Std Dev (per session)</div>
+    </div>
+  </div>
+
+  <h3>Confidence Intervals</h3>
+  <p style="color:var(--text3);font-size:.8rem;margin-bottom:12px;">How confident are we in your true win rate? More sessions = tighter intervals.</p>
+  
+  <div id="wr-confidence"></div>
+
+  <h3 style="margin-top:24px;">Probability-Adjusted Analysis</h3>
+  <div id="wr-probability"></div>
+
+  <h3 style="margin-top:24px;">Session Distribution</h3>
+  <div id="wr-distribution"></div>
+
+  <h3 style="margin-top:24px;">Running Total</h3>
+  <div id="wr-running" style="display:flex;align-items:flex-end;gap:2px;height:120px;padding:8px 0;"></div>
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- MOVING UP / DOWN -->
+<!-- ============================================================ -->
+<h2>📈 When to Move Up / Down</h2>
+
+<div class="card">
+  <table class="data-table">
+    <thead><tr><th>Situation</th><th>Action</th><th>Rule</th></tr></thead>
+    <tbody>
+      <tr><td>You have <strong>30+ buy-ins</strong> for next level</td><td style="color:var(--green);font-weight:600;">Take a shot ↑</td><td>Play 3-5 sessions at the next stake. If you lose 5 buy-ins, move back down.</td></tr>
+      <tr><td>Bankroll drops below <strong>20 buy-ins</strong> for current level</td><td style="color:var(--red);font-weight:600;">Move down ↓</td><td>No shame. Rebuild, plug leaks, move back up when ready.</td></tr>
+      <tr><td>Win rate is <strong>positive over 50+ hours</strong></td><td style="color:var(--green);font-weight:600;">Consider moving up</td><td>50 hours minimum sample for live, 30K hands for online.</td></tr>
+      <tr><td>Win rate is <strong>negative over 30+ hours</strong></td><td style="color:var(--yellow);font-weight:600;">Study, don't move up</td><td>Fix leaks before trying higher stakes. Variance isn't your problem if it's 30+ hours.</td></tr>
+      <tr><td>You lost <strong>10+ buy-ins at a new level</strong></td><td style="color:var(--red);font-weight:600;">Move down, no debate ↓</td><td>The game is too tough. Go back, study the differences, and try again later.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="tip"><strong>The Bankroll Ladder:</strong> $1/$2 → need $4K+ to take a shot at $2/$5 → need $10K+ to take a shot at $5/$10. Each level roughly requires 2.5× the previous bankroll.</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- VARIANCE & LUCK -->
+<!-- ============================================================ -->
+<h2>🎲 Understanding Variance</h2>
+
+<div class="card">
+  <h3>How Long Until You Know Your True Win Rate?</h3>
+  <table class="data-table">
+    <thead><tr><th>Sample Size</th><th>Confidence</th><th>What It Means</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">10 sessions / 5K hands</td><td style="color:var(--red)">Very Low</td><td>Basically meaningless. Could be running hot or cold. Don't change anything based on this.</td></tr>
+      <tr><td class="mono">30 sessions / 15K hands</td><td style="color:var(--orange)">Low</td><td>Slight indication of direction. Still highly variable.</td></tr>
+      <tr><td class="mono">100 sessions / 50K hands</td><td style="color:var(--yellow)">Moderate</td><td>Starting to see real patterns. Win rate estimate within ±5 bb/100.</td></tr>
+      <tr><td class="mono">200 sessions / 100K hands</td><td style="color:var(--green)">Good</td><td>Reasonable confidence. Win rate estimate within ±2-3 bb/100.</td></tr>
+      <tr><td class="mono">500+ sessions / 250K+ hands</td><td style="color:var(--green)">High</td><td>Strong confidence in your true win rate. This is where pros operate.</td></tr>
+    </tbody>
+  </table>
+  
+  <div class="warning"><strong>Sobering truth:</strong> A winning player with a 5bb/100 win rate has a ~40% chance of being a losing player over their first 25,000 hands. Variance is brutal. Trust the process, not the results.</div>
+</div>
+
+</div>
+
+<footer>
+  <p>♠ Cogent Poker © 2026 — <a href="https://github.com/darfaz/poker-crusher" target="_blank">GitHub</a></p>
+</footer>
+
+<script>
+// ============================================================
+// BANKROLL CALCULATOR
+// ============================================================
+function calcBankroll() {
+  const bb = parseFloat(document.getElementById('br-stakes').value);
+  const wr = parseFloat(document.getElementById('br-winrate').value);
+  const riskPct = parseFloat(document.getElementById('br-risk').value);
+  const buyin = bb * 100; // 100bb buy-in
+  
+  // Standard deviation for NLHE cash is ~75-100bb/100 hands
+  const stdDev = 85; // bb/100
+  
+  // Risk of Ruin formula: RoR = e^(-2*WR*BR / SD^2)
+  // Solving for BR: BR = -ln(RoR) * SD^2 / (2*WR)
+  const ror = riskPct / 100;
+  let brBB;
+  if (wr > 0) {
+    brBB = -Math.log(ror) * (stdDev * stdDev) / (2 * wr);
+  } else {
+    brBB = 10000; // If not winning, show huge requirement
+  }
+  
+  const buyins = Math.ceil(brBB / 100);
+  const dollars = buyins * buyin;
+  
+  document.getElementById('br-buyins').textContent = buyins;
+  document.getElementById('br-dollars').textContent = '$' + dollars.toLocaleString();
+  document.getElementById('br-ror').textContent = riskPct + '%';
+  
+  // Table for different risk levels
+  const profiles = [
+    { name: 'Recreational', risk: 20, who: 'Playing for fun, OK with reloading' },
+    { name: 'Semi-Serious', risk: 10, who: 'Want to build a roll but not devastated if busted' },
+    { name: 'Standard', risk: 5, who: 'Serious about poker, protecting your roll' },
+    { name: 'Conservative', risk: 2, who: 'Full-time pros, can\'t afford to go broke' },
+    { name: 'Ultra-Safe', risk: 1, who: 'Highest stakes, maximum security' },
+  ];
+  
+  let tableHtml = '';
+  for (const p of profiles) {
+    const r = p.risk / 100;
+    let bi;
+    if (wr > 0) {
+      bi = Math.ceil((-Math.log(r) * (stdDev * stdDev) / (2 * wr)) / 100);
+    } else {
+      bi = '∞';
+    }
+    const d = typeof bi === 'number' ? '$' + (bi * buyin).toLocaleString() : '—';
+    const color = p.risk <= 2 ? 'var(--green)' : p.risk <= 5 ? 'var(--gold)' : p.risk <= 10 ? 'var(--orange)' : 'var(--red)';
+    tableHtml += `<tr><td><strong>${p.name}</strong></td><td class="mono" style="color:${color}">${bi}</td><td class="mono">${d}</td><td style="color:var(--text3)">${p.risk}%</td><td style="font-size:.8rem;color:var(--text3)">${p.who}</td></tr>`;
+  }
+  document.getElementById('br-table').innerHTML = tableHtml;
+}
+
+// ============================================================
+// KELLY CRITERION
+// ============================================================
+function calcKelly() {
+  const winPct = parseFloat(document.getElementById('kelly-winpct').value) / 100;
+  const ratio = parseFloat(document.getElementById('kelly-ratio').value);
+  const bankroll = parseFloat(document.getElementById('kelly-bankroll').value);
+  const fraction = parseFloat(document.getElementById('kelly-fraction').value);
+  
+  // Kelly: f* = (bp - q) / b where b = win/loss ratio, p = win prob, q = loss prob
+  const b = ratio;
+  const p = winPct;
+  const q = 1 - p;
+  const fullKelly = Math.max(0, (b * p - q) / b);
+  const adjustedKelly = fullKelly * fraction;
+  const maxBuyin = bankroll * adjustedKelly;
+  
+  document.getElementById('kelly-full').textContent = (fullKelly * 100).toFixed(1) + '%';
+  document.getElementById('kelly-full').style.color = fullKelly > 0 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('kelly-adjusted').textContent = (adjustedKelly * 100).toFixed(1) + '%';
+  document.getElementById('kelly-buyin').textContent = '$' + Math.round(maxBuyin).toLocaleString();
+  
+  if (fullKelly <= 0) {
+    document.getElementById('kelly-full').style.color = 'var(--red)';
+    document.getElementById('kelly-buyin').textContent = '$0';
+    document.getElementById('kelly-buyin').style.color = 'var(--red)';
+  } else {
+    document.getElementById('kelly-buyin').style.color = 'var(--green)';
+  }
+}
+
+// ============================================================
+// SESSION LIMITS
+// ============================================================
+function calcSession() {
+  const bankroll = parseFloat(document.getElementById('sl-bankroll').value);
+  const buyin = parseFloat(document.getElementById('sl-stakes').value);
+  
+  const stopLoss = buyin * 3;
+  const target = buyin * 2.5;
+  
+  document.getElementById('sl-stoploss').textContent = '-$' + stopLoss.toLocaleString();
+  document.getElementById('sl-target').textContent = '+$' + target.toLocaleString();
+  
+  const buyinsAvail = Math.floor(bankroll / buyin);
+  const timeRec = buyinsAvail >= 20 ? '4-6 hrs' : buyinsAvail >= 10 ? '3-4 hrs' : '2-3 hrs';
+  document.getElementById('sl-time').textContent = timeRec;
+  
+  document.getElementById('sl-contract').innerHTML = `
+    <strong style="color:var(--green)">Before I sit down, I commit to:</strong><br>
+    ☐ My stop-loss is <strong style="color:var(--red)">-$${stopLoss.toLocaleString()}</strong> (${(stopLoss/buyin).toFixed(0)} buy-ins). If I hit it, I leave. No exceptions.<br>
+    ☐ My session time limit is <strong style="color:var(--blue)">${timeRec}</strong>. I will take a break every 90 minutes.<br>
+    ☐ I have <strong>${buyinsAvail} buy-ins</strong> in my bankroll. ${buyinsAvail < 20 ? '<span style="color:var(--red)">⚠️ Under-rolled! Consider dropping stakes.</span>' : '<span style="color:var(--green)">✓ Properly rolled.</span>'}<br>
+    ☐ If I feel tilted after a bad beat, I will <strong>stand up and walk for 10 minutes</strong> before returning.<br>
+    ☐ I will not chase losses. I will not play "just one more hour" after hitting my stop-loss.<br>
+    ☐ I am playing because the game is <strong>good</strong>, not because I'm stuck.
+  `;
+}
+
+// ============================================================
+// WIN RATE ANALYZER
+// ============================================================
+let sessions = JSON.parse(localStorage.getItem('cogent_sessions') || '[]');
+
+function renderSessions() {
+  const el = document.getElementById('wr-sessions');
+  if (sessions.length === 0) {
+    el.innerHTML = '<div style="color:var(--text3);font-size:.85rem;">No sessions logged yet.</div>';
+    document.getElementById('wr-analysis').style.display = 'none';
+    return;
+  }
+  
+  let html = '';
+  sessions.forEach((s, i) => {
+    const color = s.result >= 0 ? 'var(--green)' : 'var(--red)';
+    html += `<div class="session-entry">
+      <span style="color:var(--text3)">#${i+1} — ${s.hours}h</span>
+      <span class="mono" style="color:${color}">${s.result >= 0 ? '+' : ''}$${s.result.toFixed(0)}</span>
+      <span style="cursor:pointer;color:var(--text3);font-size:.8rem;" onclick="removeSession(${i})">✕</span>
+    </div>`;
+  });
+  el.innerHTML = html;
+  
+  analyzeWinRate();
+}
+
+function addSession() {
+  const hours = parseFloat(document.getElementById('wr-hours').value);
+  const result = parseFloat(document.getElementById('wr-result').value);
+  if (isNaN(hours) || isNaN(result)) return;
+  sessions.push({ hours, result, date: new Date().toISOString() });
+  localStorage.setItem('cogent_sessions', JSON.stringify(sessions));
+  document.getElementById('wr-result').value = '0';
+  renderSessions();
+}
+
+function removeSession(i) {
+  sessions.splice(i, 1);
+  localStorage.setItem('cogent_sessions', JSON.stringify(sessions));
+  renderSessions();
+}
+
+function clearSessions() {
+  if (!confirm('Clear all session data?')) return;
+  sessions = [];
+  localStorage.setItem('cogent_sessions', '[]');
+  renderSessions();
+}
+
+function loadSampleData() {
+  // Realistic sample: slightly winning $1/$2 player over 30 sessions
+  const sample = [
+    {hours:5,result:320},{hours:4,result:-200},{hours:6,result:510},{hours:3,result:-380},
+    {hours:5,result:150},{hours:4,result:80},{hours:5,result:-600},{hours:6,result:440},
+    {hours:4,result:-120},{hours:5,result:280},{hours:3,result:-50},{hours:6,result:620},
+    {hours:5,result:-340},{hours:4,result:190},{hours:5,result:410},{hours:4,result:-180},
+    {hours:6,result:550},{hours:3,result:-90},{hours:5,result:310},{hours:4,result:-450},
+    {hours:5,result:170},{hours:6,result:380},{hours:4,result:-210},{hours:5,result:260},
+    {hours:3,result:90},{hours:5,result:-300},{hours:6,result:480},{hours:4,result:130},
+    {hours:5,result:-160},{hours:4,result:350}
+  ];
+  sample.forEach(s => s.date = new Date().toISOString());
+  sessions = sample;
+  localStorage.setItem('cogent_sessions', JSON.stringify(sessions));
+  renderSessions();
+}
+
+function exportCSV() {
+  let csv = 'Session,Hours,Result\n';
+  sessions.forEach((s,i) => csv += `${i+1},${s.hours},${s.result}\n`);
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'cogent_poker_sessions.csv';
+  a.click();
+}
+
+function analyzeWinRate() {
+  if (sessions.length < 2) {
+    document.getElementById('wr-analysis').style.display = 'none';
+    return;
+  }
+  document.getElementById('wr-analysis').style.display = 'block';
+  
+  const totalHours = sessions.reduce((s,x) => s + x.hours, 0);
+  const totalResult = sessions.reduce((s,x) => s + x.result, 0);
+  const hourly = totalResult / totalHours;
+  const wins = sessions.filter(s => s.result > 0).length;
+  const winPct = (wins / sessions.length * 100);
+  
+  // Standard deviation
+  const mean = totalResult / sessions.length;
+  const variance = sessions.reduce((s,x) => s + Math.pow(x.result - mean, 2), 0) / sessions.length;
+  const stdDev = Math.sqrt(variance);
+  
+  // bb/100 estimate (assuming $1/$2 = $2 BB, ~30 hands/hr)
+  const bb = 2; // default
+  const handsPerHour = 30;
+  const totalHands = totalHours * handsPerHour;
+  const bb100 = (totalResult / bb) / (totalHands / 100);
+  
+  // Colors
+  const hourlyEl = document.getElementById('wr-hourly');
+  hourlyEl.textContent = (hourly >= 0 ? '+' : '') + '$' + hourly.toFixed(2);
+  hourlyEl.className = 'result-big ' + (hourly >= 15 ? 'result-good' : hourly >= 0 ? 'result-warn' : 'result-bad');
+  
+  const bb100El = document.getElementById('wr-bb100');
+  bb100El.textContent = bb100.toFixed(1);
+  bb100El.className = 'result-big ' + (bb100 >= 5 ? 'result-good' : bb100 >= 0 ? 'result-warn' : 'result-bad');
+  
+  const totalEl = document.getElementById('wr-total');
+  totalEl.textContent = (totalResult >= 0 ? '+' : '') + '$' + totalResult.toFixed(0);
+  totalEl.className = 'result-big ' + (totalResult >= 0 ? 'result-good' : 'result-bad');
+  
+  document.getElementById('wr-winpct').textContent = winPct.toFixed(0) + '%';
+  document.getElementById('wr-winpct').className = 'result-big ' + (winPct >= 55 ? 'result-good' : winPct >= 45 ? 'result-warn' : 'result-bad');
+  
+  document.getElementById('wr-stddev').textContent = '$' + stdDev.toFixed(0);
+  
+  // Confidence intervals
+  const n = sessions.length;
+  const se = stdDev / Math.sqrt(n); // standard error of hourly mean
+  const seHourly = se / (totalHours / n); // per hour
+  
+  // Using t-distribution approximation (z for large n)
+  const z90 = 1.645, z95 = 1.96, z99 = 2.576;
+  
+  const ci = [
+    { level: '90%', z: z90, color: 'var(--green)' },
+    { level: '95%', z: z95, color: 'var(--gold)' },
+    { level: '99%', z: z99, color: 'var(--orange)' },
+  ];
+  
+  let ciHtml = '<table class="data-table"><thead><tr><th>Confidence</th><th>Hourly Low</th><th>Hourly High</th><th>Interpretation</th></tr></thead><tbody>';
+  for (const c of ci) {
+    const lo = hourly - c.z * seHourly;
+    const hi = hourly + c.z * seHourly;
+    const interp = lo > 0 ? 'Likely a winner ✓' : hi < 0 ? 'Likely a loser ✗' : 'Inconclusive — need more data';
+    const interpColor = lo > 0 ? 'var(--green)' : hi < 0 ? 'var(--red)' : 'var(--yellow)';
+    ciHtml += `<tr><td style="color:${c.color};font-weight:600">${c.level}</td>
+      <td class="mono">${lo >= 0 ? '+' : ''}$${lo.toFixed(2)}/hr</td>
+      <td class="mono">${hi >= 0 ? '+' : ''}$${hi.toFixed(2)}/hr</td>
+      <td style="color:${interpColor};font-weight:600">${interp}</td></tr>`;
+  }
+  ciHtml += '</tbody></table>';
+  document.getElementById('wr-confidence').innerHTML = ciHtml;
+  
+  // Probability-adjusted analysis
+  const probWinner = normalCDF(hourly / seHourly);
+  let probHtml = `<div class="grid-2">
+    <div class="result-box">
+      <div class="result-big" style="color:${probWinner > 0.7 ? 'var(--green)' : probWinner > 0.5 ? 'var(--yellow)' : 'var(--red)'}">${(probWinner*100).toFixed(1)}%</div>
+      <div class="result-label">Probability You're a Winning Player</div>
+    </div>
+    <div class="result-box">
+      <div class="result-big" style="color:var(--text2)">${n} / ${totalHours.toFixed(0)}h</div>
+      <div class="result-label">Sessions / Total Hours</div>
+    </div>
+  </div>`;
+  
+  // Luck-adjusted estimate
+  const expectedByVariance = stdDev * Math.sqrt(n) * 0.1; // rough luck adjustment
+  probHtml += `<div class="tip" style="margin-top:12px;"><strong>With ${n} sessions:</strong> Your observed hourly of <strong>$${hourly.toFixed(2)}/hr</strong> has a standard error of <strong>±$${seHourly.toFixed(2)}/hr</strong>. ${n < 30 ? 'You need more sessions to draw reliable conclusions.' : n < 100 ? 'Getting a clearer picture, but variance is still significant.' : 'Good sample size — your numbers are becoming reliable.'}</div>`;
+  
+  document.getElementById('wr-probability').innerHTML = probHtml;
+  
+  // Distribution bars
+  const buckets = {'< -$500': 0, '-$500 to -$200': 0, '-$200 to $0': 0, '$0 to $200': 0, '$200 to $500': 0, '> $500': 0};
+  for (const s of sessions) {
+    if (s.result < -500) buckets['< -$500']++;
+    else if (s.result < -200) buckets['-$500 to -$200']++;
+    else if (s.result < 0) buckets['-$200 to $0']++;
+    else if (s.result < 200) buckets['$0 to $200']++;
+    else if (s.result < 500) buckets['$200 to $500']++;
+    else buckets['> $500']++;
+  }
+  const maxCount = Math.max(...Object.values(buckets), 1);
+  
+  let distHtml = '<div class="bar-chart">';
+  const barColors = ['var(--red)', 'var(--orange)', 'var(--yellow)', 'var(--blue)', 'var(--green)', 'var(--green)'];
+  let ci2 = 0;
+  for (const [label, count] of Object.entries(buckets)) {
+    const pct = (count / maxCount * 100).toFixed(0);
+    distHtml += `<div class="bar-row">
+      <span class="bar-label">${label}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${barColors[ci2]}">${count > 0 ? count : ''}</div></div>
+      <span class="bar-value">${count} (${(count/n*100).toFixed(0)}%)</span>
+    </div>`;
+    ci2++;
+  }
+  distHtml += '</div>';
+  document.getElementById('wr-distribution').innerHTML = distHtml;
+  
+  // Running total chart
+  let running = 0;
+  let runningData = [];
+  let minR = 0, maxR = 0;
+  for (const s of sessions) {
+    running += s.result;
+    runningData.push(running);
+    minR = Math.min(minR, running);
+    maxR = Math.max(maxR, running);
+  }
+  const range = Math.max(maxR - minR, 1);
+  
+  let runHtml = '';
+  const barW = Math.max(4, Math.floor(600 / sessions.length));
+  for (let i = 0; i < runningData.length; i++) {
+    const val = runningData[i];
+    const height = ((val - minR) / range * 100).toFixed(0);
+    const color = val >= 0 ? 'var(--green)' : 'var(--red)';
+    runHtml += `<div style="width:${barW}px;height:${height}%;min-height:2px;background:${color};border-radius:2px 2px 0 0;" title="Session ${i+1}: $${val.toFixed(0)}"></div>`;
+  }
+  document.getElementById('wr-running').innerHTML = runHtml;
+}
+
+// Normal CDF approximation
+function normalCDF(x) {
+  const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+  const sign = x < 0 ? -1 : 1;
+  x = Math.abs(x) / Math.sqrt(2);
+  const t = 1.0 / (1.0 + p * x);
+  const y = 1.0 - (((((a5*t + a4)*t) + a3)*t + a2)*t + a1)*t * Math.exp(-x*x);
+  return 0.5 * (1.0 + sign * y);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+calcBankroll();
+calcKelly();
+calcSession();
+renderSessions();
+</script>
+</body>
+</html>
